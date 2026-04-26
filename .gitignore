@@ -47,3 +47,4 @@ logs/
 # Artifacts
 tmp/
 .tmp/
+.venv/

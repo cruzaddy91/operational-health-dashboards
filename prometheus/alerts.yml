@@ -1,0 +1,37 @@
+groups:
+  - name: portfolio-health
+    interval: 10s
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum by (service) (rate(portfolio_api_requests_total{outcome="error"}[1m]))
+            /
+          sum by (service) (rate(portfolio_api_requests_total[1m]))
+            > 0.05
+        for: 30s
+        labels:
+          severity: page
+        annotations:
+          summary: "Error rate above 5% on {{ $labels.service }}"
+          description: "Sustained error rate over 5% for the last 30s. Check vendor status and recent changes."
+
+      - alert: LatencyBurn
+        expr: |
+          histogram_quantile(0.95,
+            sum by (service, le) (rate(portfolio_api_latency_seconds_bucket[1m]))
+          ) > 1.0
+        for: 30s
+        labels:
+          severity: warn
+        annotations:
+          summary: "p95 latency over 1s on {{ $labels.service }}"
+          description: "Latency p95 has been over 1 second for 30s+. Likely vendor or partial-ownership stack issue."
+
+      - alert: FreshnessLag
+        expr: portfolio_freshness_lag_seconds > 7200
+        for: 1m
+        labels:
+          severity: warn
+        annotations:
+          summary: "Freshness lag over 2h on {{ $labels.service }}"
+          description: "Service has not produced fresh data in over two hours. Check upstream pipeline and vendor connector."

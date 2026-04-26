@@ -1,0 +1,38 @@
+services:
+  emitter:
+    build:
+      context: .
+      dockerfile: Dockerfile.emitter
+    container_name: ohd_emitter
+    ports:
+      - "9100:9100"
+    environment:
+      EMITTER_PORT: "9100"
+      EMITTER_SEED: "42"
+      EMITTER_INTERVAL_SECONDS: "1.0"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ohd_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    depends_on:
+      - emitter
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ohd_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
