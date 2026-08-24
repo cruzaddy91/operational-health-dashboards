@@ -26,10 +26,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install ruff pytest
+          # PINNED ON PURPOSE. These were previously installed unpinned, so every
+          # run got whatever was latest that day. This CI passed in April 2026 and
+          # failed in August on identical code, because a newer ruff started
+          # enforcing I001 import sorting. An unpinned linter means the build can
+          # break with no commit behind it.
+          pip install "ruff==0.16.4" "pytest==9.1.1"
 
       - name: Lint (ruff)
         run: ruff check .
 
       - name: Test (pytest)
-        run: pytest -q || [ $? -eq 5 ]
+        # No `|| [ $? -eq 5 ]` escape. Exit code 5 means pytest collected no tests
+        # at all, which is a failure worth hearing about, not a pass to swallow.
+        run: pytest -q

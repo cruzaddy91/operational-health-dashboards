@@ -7,8 +7,8 @@ from src.emitter import (
     REGISTRY,
     emit_api_tick,
     emit_pipeline_tick,
-    update_freshness,
     maybe_inject_fault,
+    update_freshness,
 )
 
 
