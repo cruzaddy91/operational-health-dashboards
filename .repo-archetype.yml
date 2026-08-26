@@ -1,0 +1,13 @@
+# Repo archetype declaration. Read by automation/repo-audit/.
+# Declared, not detected: the repo says what it is, the audit never guesses.
+#
+# Verified before declaring: src/ and tests/ both exist, no loose *.py at the
+# repo root. python-service applies cleanly with nothing waived.
+archetype: python-service
+ecosystem: python
+
+# Deviations are DECLARED, never silently tolerated. Empty means every rule for
+# python-service applies. `lockfile.missing` is a REAL gap here (requirements.txt
+# only, no lock) and is deliberately NOT waived, because hiding it defeats the
+# point. It is Phase 5 work.
+exceptions: []
